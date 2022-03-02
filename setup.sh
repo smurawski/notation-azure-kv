@@ -23,6 +23,8 @@ function getLatestK8s {
 }
 
 # Environment variables / positional parameters and defaults. 
+
+# TODO make $1 and $2 required?
 keyName=$1
 
 keySubjectName=$2
