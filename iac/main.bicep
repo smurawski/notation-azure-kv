@@ -36,3 +36,7 @@ module keyvault './keyvault.bicep' = {
     location: location
   }
 }
+
+output aks_name string = aks.outputs.clusterName
+output acr_name string = acr.outputs.acrName
+output keyVault_name string = keyvault.outputs.keyVaultName

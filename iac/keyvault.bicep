@@ -39,5 +39,6 @@ resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   location: location
 }
 
+output keyVaultName string = kvName
 output keyVaultUri string = keyVault.properties.vaultUri
 output keyVaultId string = keyVault.id
