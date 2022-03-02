@@ -26,7 +26,7 @@ Once you have done the above, you are ready to deploy the required infrastructur
 Bash
 
   ```bash
-  ./setup.sh myAkvDeploy eastus '1.21.2' akvResources
+  ./setup.sh keyName keySubjectName myAkvDeploy eastus '1.21.2' akvResources
   ```
 
 ### Known Issues / Currently Working on:
