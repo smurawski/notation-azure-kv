@@ -80,20 +80,6 @@ function installNotationKvPlugin {
     rm -rf notation-azure-kv.tar.gz
 }
 
-function createServicePrincipal {
-    # Service Principal Name
-    SP_NAME=https://${envPrefix}-sp
-
-    # Create the service principal, capturing the password
-    export AZURE_CLIENT_SECRET=$(az ad sp create-for-rbac --skip-assignment --name $SP_NAME --query "password" --output tsv)
-
-    # Capture the service srincipal appId
-    export AZURE_CLIENT_ID=$(az ad sp list --display-name $SP_NAME --query "[].appId" --output tsv)
-
-    # Capture the Azure Tenant ID
-    export AZURE_TENANT_ID=$(az account show --query "tenantId" -o tsv)
-}
-
 function installGatekeeper {
     echo ''
     echo "Configuring Gatekeeper on your AKS Cluster..."
