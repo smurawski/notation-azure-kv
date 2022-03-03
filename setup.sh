@@ -9,9 +9,6 @@
 # Helm
 # Kubectl
 
-# Store current working directory
-currentDir=$(pwd)
-
 # Get the latest version of Kubernetes available in specified location
 function getLatestK8s {
    versions=$(az aks get-versions -l $location -o tsv --query="orchestrators[].orchestratorVersion")
@@ -33,40 +30,47 @@ rgName=$3
 rgName=${rgName:-myakv-akv-rg}
 
 # The location to store the meta data for the deployment.
-location=$4
-location=${location:-eastus}
+location=${location:-southcentralus} # Currently only region to support premium ACR with Zone Redundancy
 
 # The version of k8s control plane
-k8sversion=$5
+k8sversion=$4
 k8sversion=${k8sversion:-$(getLatestK8s)}
 
 # Environment Name (ACR, AKS, KV prefix)
-envPrefix=$6
+envPrefix=$5
 envPrefix=${envPrefix:-myakv}
 
 # Install Notation CLI
 function getNotationProject {
     echo ''
     echo "Setting up the Notation CLI..."
-    # Get Notation project from Keyvault Extensibilty Branch
-    git clone https://github.com/notaryproject/notation.git -b feat-kv-extensibility $HOME/notation
-    cd $HOME/notation
-    make build
+
+    # Grab OS Version
+    osVersion=$(uname | tr '[:upper:]' '[:lower:]')
+
+    # Choose a binary
+    timestamp=20220121081115
+    commit=17c7607
+
+    # Download Notation from pre-release
+    curl -Lo notation.tar.gz https://github.com/notaryproject/notation/releases/download/feat-kv-extensibility/notation-feat-kv-extensibility-$timestamp-$commit.tar.gz
+
+    # Extract notation
+    mkdir ./tmp
+    tar xvzf notation.tar.gz -C ./tmp
 
     # Copy the notation cli to your bin directory
-    cp ./bin/notation ~/bin
+    tar xvzf ./tmp/notation_0.0.0-SNAPSHOT-${commit}_${osVersion}_amd64.tar.gz -C ~/bin notation
 
     # Clean up
-    rm -rf $HOME/notation
+    rm -rf ./tmp notation.tar.gz
 }
 
 # Install Azure Keyvault Plugin
 function installNotationKvPlugin {
     echo ''
     echo "Setting up the Notation Keyvault Plugin..."
-    # Change directories back to current working directory
 
-    cd $currentDir
     # Create a directory for the plugin
     mkdir -p ~/.config/notation/plugins/azure-kv
 
@@ -170,7 +174,7 @@ function getOutput {
 function deployInfra {
     echo ''
     echo "Deploying the required infrastructure..."
-    cd $currentDir
+
     # Deploy the infrastructure
     az deployment sub create --name $rgName \
     --location $location \
@@ -181,15 +185,23 @@ function deployInfra {
     --parameters envPrefix=$envPrefix \
     --output none
 
-    # Get all the outputs
-    aksName=$(getOutput 'aks_name')
-    acrName=$(getOutput 'acr_name')
-    keyVaultName=$(getOutput 'keyVault_name')
+    # Check for success
+    if [[ $? -eq 1 ]]
+    then
+        echo ''
+        echo "Something went wrong."
+        exit 1
+    else 
+        # Get all the outputs
+        aksName=$(getOutput 'aks_name')
+        acrName=$(getOutput 'acr_name')
+        keyVaultName=$(getOutput 'keyVault_name')
 
-    # Add new cluster to local Kube Config
-    echo ''
-    echo "Adding newly created Kubernetes context to your Kube Config..."
-    az aks get-credentials -n $aksName -g $rgName --admin
+        # Add new cluster to local Kube Config
+        echo ''
+        echo "Adding newly created Kubernetes context to your Kube Config..."
+        az aks get-credentials -n $aksName -g $rgName --admin
+    fi
 }
 
 function setup {
