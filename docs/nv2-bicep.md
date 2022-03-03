@@ -19,7 +19,7 @@ Once you have done the above, you are ready to deploy the required infrastructur
 1. Key Name: **Required** Key name used to sign and verify.
 2. Key Subject Name: **Required** Key subejct name used to sign and verify.
 3. Resource Group Name: This will be the resource group created in Azure. If you do not provide a value `myakv-akv-rg` will be used.
-4. Location: This is the location to deploy all your resources. If you do not provide a value `eastus` will be used.
+4. Location: This is the location to deploy all your resources. `southcentralus` will be used as this is the only region that supports premium ACR with zone redundancy at this time.
 5. Kubernetes Version: This is the version of Kubernetes control plane. If you do not provide a value, the latest Kubernetes version available for the provided location will be used.
 6. Environment Prefix: This is the prefix for the required resources that will be created for you. If you do not provide a value, `myakv` will be used.
 

@@ -2,7 +2,7 @@ param location string = resourceGroup().location
 param uaminame string = 'myakv-uami'
 param kvName string = 'myakv-kv-${uniqueString(resourceGroup().id)}'
 
-// Create a keyvault, and use a nested resource to set a secret
+// Create a keyvault
 resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: kvName
   location: location
@@ -22,6 +22,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
           secrets: [
             'list'
             'get'
+          ]
+          certificates: [
+            'all'
           ]
         }
       }

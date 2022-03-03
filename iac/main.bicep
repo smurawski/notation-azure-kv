@@ -31,7 +31,7 @@ module aks './aks.bicep' = {
 
 module keyvault './keyvault.bicep' = {
   scope: resourceGroup(rg.name)
-  name: 'myakv-kevault'
+  name: 'myakv-keyvault'
   params: {
     location: location
   }
