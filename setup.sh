@@ -108,11 +108,32 @@ function installGatekeeper {
 
 function createSigningCertforKV {
     echo ''
-    echo "Generating signing cert..."
-    # TODO: Add signing
+    echo "Generating signing cert with the following subject name: $keySubjectName..."
 
+    # Create policy json file
+    cat <<EOF > ./my_policy.json
+    {
+        "issuerParameters": {
+        "certificateTransparency": null,
+        "name": "Self"
+        },
+        "x509CertificateProperties": {
+        "ekus": [
+            "1.3.6.1.5.5.7.3.1",
+            "1.3.6.1.5.5.7.3.2",
+            "1.3.6.1.5.5.7.3.3"
+        ],
+        "subject": "CN=${keySubjectName}",
+        "validityInMonths": 12
+    }
+    }
+EOF
+    
     # Create the certificate in Azure KeyVault
-    az keyvault certificate create -n $rgName --vault-name $aksName -p @my_policy.json
+    echo ''
+    echo "Creating certificate in Azure KeyVault..."
+    # TODO: Resolve permissions issue for the below command to work
+    az keyvault certificate create -n $rgName --vault-name $keyVaultName -p @my_policy.json
 
     # Get the Key ID for the newly created Cert
     keyID=$(az keyvault certificate show --vault-name $keyVaultName \
@@ -120,6 +141,8 @@ function createSigningCertforKV {
             --query "kid" -o tsv)
     
     # Use notation to add the key id to the kms keys and certs
+    echo ''
+    echo "Using Notationto add the key ID to Key Management Service..."
     notation key add --name $keyName --plugin azure-kv --id $keyID --kms
     notation cert add --name $keyName --plugin azure-kv --id $keyID--kms
 
@@ -209,7 +232,7 @@ function setup {
     installNotationKvPlugin
     deployInfra
     installGatekeeper
-    # createSigningCertforKV
+    createSigningCertforKV
     # secureAKSwithRatify
     # bulidImageandSign
 }
