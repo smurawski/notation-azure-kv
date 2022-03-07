@@ -5,7 +5,7 @@ param k8sversion string = '1.19.6'
 param rgName string = 'myakv-akv-rg'
 param envPrefix string = 'myakv'
 
-
+// TODO: connect aks and acr together
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgName
   location: location

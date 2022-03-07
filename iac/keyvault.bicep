@@ -7,9 +7,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: kvName
   location: location
   properties: {
-    enabledForDeployment: false
-    enabledForTemplateDeployment: false
-    enabledForDiskEncryption: false
     tenantId: subscription().tenantId
     accessPolicies: [
       {
@@ -18,13 +15,15 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
         permissions: {
           keys: [
             'get'
+            'sign'
           ]
           secrets: [
             'list'
             'get'
           ]
           certificates: [
-            'all'
+            'get'
+            'create'
           ]
         }
       }
